@@ -1,0 +1,9 @@
+# playbook.yml
+---
+- hosts: [marketingservers]
+  remote_user: webadmin
+  tasks:
+    - name: Ensure the Apache daemon has started
+      service: name=httpd state=started
+      become: yes
+      become_method: sudo 
