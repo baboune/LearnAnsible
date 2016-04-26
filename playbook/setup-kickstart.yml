@@ -1,0 +1,20 @@
+# prepare-kickstart
+---
+- hosts: [kickstart]
+  remote_user: root
+  tasks:
+  - name: install the required packages
+    package: name={{ item }} state=latest
+    with_items:
+    - wget 
+    - httpd 
+    - tftp 
+    - tftp-server 
+    - vsftpd 
+    - syslinux 
+    - ntp 
+    - net-tools 
+    - bind-utils 
+    - tcpdump 
+    - pyOpenSSL 
+    - git

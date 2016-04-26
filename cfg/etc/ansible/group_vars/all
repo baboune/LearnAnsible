@@ -1,0 +1,3 @@
+---
+# Global defaults
+src_cfg_dir: /vagrant/cfg

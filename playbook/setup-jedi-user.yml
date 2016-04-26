@@ -1,0 +1,18 @@
+# setup-jedi-user.yml
+---
+- hosts: [all]
+  remote_user: root
+  vars: 
+    USER_NAME: 'jedi'
+  tasks:
+    - name: Create non-root user
+      user: name={{ USER_NAME }} shell=/bin/bash
+            password='$6$rounds=656000$oopezXro4Wnys/EP$VoQbhD.dAb5HqedhTEBmqaGSOb9fNAtQUhIJHBeL8Jqv389znVP4iTOQ8QUjpvt9wrT8TPVwp.y8bt4vS86Ry/'
+
+    - name: Add remote authorized key - password less login
+      authorized_key: user={{ USER_NAME }} key="{{ lookup('file', '{{ src_cfg_dir }}/ssh/id_rsa.pub') }}"
+    - name: Add user to sudoers
+      lineinfile: dest=/etc/sudoers
+                  regexp="{{ USER_NAME }} ALL"
+                  line="{{ USER_NAME }} ALL=(ALL) ALL"
+                  state=present

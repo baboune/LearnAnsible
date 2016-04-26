@@ -18,6 +18,7 @@ Vagrant.configure(2) do |config|
       # Customize the amount of memory on the VM:
       vb.memory = "1024"
     end
+    machine.vm.provision "shell", path: 'sh/setup-node.sh'
   end
   config.vm.define "node2" do |machine|
     machine.vm.network "private_network", ip: "192.168.50.22"
@@ -26,6 +27,7 @@ Vagrant.configure(2) do |config|
       # Customize the amount of memory on the VM:
       vb.memory = "1024"
     end
+    machine.vm.provision "shell", path: 'sh/setup-node.sh'
   end
 
   config.vm.define "controller" do |machine|
@@ -41,12 +43,12 @@ Vagrant.configure(2) do |config|
     machine.vm.provision "shell", path: 'sh/setup-ansible.sh'  
     machine.vm.provision "shell", path: 'sh/config-ansible.sh'  
 
-    # Patch for https://github.com/mitchellh/vagrant/issues/6793
+    # hack for bug https://github.com/mitchellh/vagrant/issues/6793#issuecomment-172408346
     config.vm.provision "shell" do |s|
       s.inline = '[[ ! -f $1 ]] || grep -F -q "$2" $1 || sed -i "/__main__/a \\    $2" $1'
       s.args = ['/usr/bin/ansible-galaxy', "if sys.argv == ['/usr/bin/ansible-galaxy', '--help']: sys.argv.insert(1, 'info')"]
     end 
-    
+
     # Run Ansible from the Vagrant VM
     # Must wait for Vagrant 1.8.2, see https://github.com/geerlingguy/drupal-vm/issues/372
     # https://github.com/mitchellh/vagrant/issues/6793
