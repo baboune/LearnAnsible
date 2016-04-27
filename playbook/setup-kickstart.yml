@@ -1,7 +1,12 @@
 # prepare-kickstart
 ---
 - hosts: [kickstart]
-  remote_user: root
+  become: yes
+
+  handlers:
+    - name: restart dnsmasq
+      service: name=dnsmasq state=restarted
+
   tasks:
   - name: install the required packages
     # More generic but since we know it is centos
@@ -20,8 +25,36 @@
     - tcpdump 
     - pyOpenSSL 
     - git
+
   - name: disable SELinux
     selinux: policy=targeted state=permissive
+
+  - name: prepare configuration directories
+    file: path=/etc/{{ item }} state=directory
+    with_items:
+    - dnsmasq
+    - httpd
+
+  - name: configure dnsmasq
+    template: 
+      src: "{{ templates_dir }}/dnsmasq.conf.j2" 
+      dest: "/etc/dnsmasq/dnsmasq.conf"
+      owner: root
+      group: root
+      mode: 0644
+    notify: restart dnsmasq
+
+  - name: configure other services
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: 0644
+    with_items:
+      - src: "{{ src_cfg_dir }}/etc/httpd/conf.d/local-kickstart.conf" 
+        dest: "/etc/httpd/conf.d/local-kickstart.conf"
+
   - name: enable and start services
     service: name={{ item }} enabled=yes state=started
     with_items:

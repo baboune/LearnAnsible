@@ -1,9 +1,15 @@
 ---
 # kickstart
 subnet: 10.68.230
+subnet_start: "{{ subnet }}.100"
+subnet_end: "{{ subnet }}.255"
 dhcp_interface: eth1
-default_gateway: 192.168.50.10
+pxe_ip: "{{ subnet }}.53"
+dns_ip: "{{ pxe_ip }}"
+gateway_ip: "{{ pxe_ip }}"
+# tftp
 tftp_boot_loc: /var/lib/tftpboot
 atomic_c_iso: CentOS-Atomic-Host-7-Installer.iso
-atomic_c_iso_loc: /home/vagrant/sync/archives/{{_atomic_c_iso }}
+atomic_c_iso_loc: "/home/vagrant/sync/archives/{{ _atomic_c_iso }}"
 atomic_c_iso_url: http://cloud.centos.org/centos/7/atomic/images/CentOS-Atomic-Host-7-Installer.iso
+

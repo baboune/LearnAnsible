@@ -1,0 +1,36 @@
+# Specify which interface to serve DHCP on 
+interface={{ dhcp_interface }},lo
+
+# DHCP range-leases, including interface, netmask and lease-time
+dhcp-range={{ dhcp_interface }},{{ subnet_start }},{{ subnet_end }},255.255.255.0,1h
+
+# Specify PXE boot-file and which server uses it
+dhcp-boot=pxelinux.0,pxeserver,{{ pxe_ip }}
+
+# Default gateway to serve DHCP clients
+dhcp-option=3,{{ gateway_ip }}
+
+# DNS server to serve clients
+dhcp-option=6,{{ dns_ip }}
+
+# Broadcast address to server DHCP clients
+dhcp-option=28, {{ subnet }}.255
+
+# The following two lines may not be needed
+#pxe-prompt="Press F8 for menu.", 60
+pxe-service=x86PC, "Install Linux", pxelinux
+
+# Enable tftp and point out where the root for the service is
+enable-tftp
+tftp-root={{ tftp_boot_loc }}
+
+# Use for fixed allocation
+dhcp-hostsfile=/etc/dnsmasq/dhcp-hosts
+
+# Logging
+# For debugging purposes, log each DNS query as it passes through
+# dnsmasq.
+log-queries
+
+# Log lots of extra information about DHCP transactions.
+log-dhcp
