@@ -16,3 +16,6 @@
                   regexp="{{ USER_NAME }} ALL"
                   line="{{ USER_NAME }} ALL=(ALL) ALL"
                   state=present
+    # Maybe bad?
+    - name: Add remote authorized key for root - password less login
+      authorized_key: user=root key="{{ lookup('file', '{{ src_cfg_dir }}/ssh/id_rsa.pub') }}"

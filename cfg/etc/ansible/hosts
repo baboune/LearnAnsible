@@ -1,9 +1,9 @@
-[targets]
-#  Select the connection type and user on a per host basis
-controller ansible_connection=local
+[controller]
+192.168.50.10
 
 [kickstart]
 192.168.50.21
 
-[controller]
+[slaves]
+192.168.50.21
 192.168.50.22
