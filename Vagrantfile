@@ -49,16 +49,19 @@ Vagrant.configure(2) do |config|
       s.args = ['/usr/bin/ansible-galaxy', "if sys.argv == ['/usr/bin/ansible-galaxy', '--help']: sys.argv.insert(1, 'info')"]
     end 
 
+    # Emulate controller being the ansible driver
+    machine.vm.provision "shell", path: 'sh/run-playbooks.sh'
     # Run Ansible from the Vagrant VM
+
     # Must wait for Vagrant 1.8.2, see https://github.com/geerlingguy/drupal-vm/issues/372
     # https://github.com/mitchellh/vagrant/issues/6793
-    machine.vm.provision "ansible_local" do |ansible|
-      ansible.playbook        = "playbook/playbook.yml"
-      ansible.verbose         = true
-      ansible.install         = false
-      ansible.limit           = "all" # or only "nodes" group, etc
-      ansible.inventory_path  = "inventory"
-    end
+    #machine.vm.provision "ansible_local" do |ansible|
+    #  ansible.playbook        = "playbook/playbook.yml"
+    #  ansible.verbose         = true
+    #  ansible.install         = false
+    #  ansible.limit           = "all" # or only "nodes" group, etc
+    #  ansible.inventory_path  = "inventory"
+    #end
   end
   
 end
