@@ -1,0 +1,42 @@
+default menu.c32
+prompt 0
+timeout 100
+ONTIMEOUT local
+
+menu title ########## JEDI Production/Staging Boot Menu ##########
+label 0
+menu label ^0) Boot from local drive
+  localboot
+
+label 1
+menu label ^1) Install JEDI (CentOS-Atomic-23) - DCP1-WRK-01
+  kernel  centos_cloud_atomic_23/vmlinuz
+  append initrd=centos_cloud_atomic_23/initrd.img devfs=nomount inst.ks=ftp://{{ pxe_ip }}/pub/_kickstart/dcp1-wrk-01-ks.cfg fetch=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23/LiveOS/squashfs.img method=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23
+
+label 2
+menu label ^2) Install JEDI (CentOS-Atomic-23) - DCP1-WRK-02
+  kernel  centos_cloud_atomic_23/vmlinuz
+  append initrd=centos_cloud_atomic_23/initrd.img devfs=nomount inst.ks=ftp://{{ pxe_ip }}/pub/_kickstart/dcp1-wrk-02-ks.cfg fetch=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23/LiveOS/squashfs.img method=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23
+
+label 3
+menu label ^3) Install JEDI (CentOS-Atomic-23) - DCP1-WRK-03
+  kernel  centos_cloud_atomic_23/vmlinuz
+  append initrd=centos_cloud_atomic_23/initrd.img devfs=nomount inst.ks=ftp://{{ pxe_ip }}/pub/_kickstart/dcp1-wrk-03-ks.cfg fetch=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23/LiveOS/squashfs.img method=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23
+
+label 4
+menu label ^4) Install JEDI (CentOS-Atomic-23) - DCP1-WRT-01
+  kernel  centos_cloud_atomic_23/vmlinuz
+  append initrd=centos_cloud_atomic_23/initrd.img devfs=nomount inst.ks=ftp://{{ pxe_ip }}/pub/_kickstart/dcp1-wrt-01-ks.cfg fetch=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23/LiveOS/squashfs.img method=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23
+
+label 5
+menu label ^5) Install JEDI (CentOS-Atomic-23) - DCP1-WRT-02
+  kernel  centos_cloud_atomic_23/vmlinuz
+  append initrd=centos_cloud_atomic_23/initrd.img devfs=nomount inst.ks=ftp://{{ pxe_ip }}/pub/_kickstart/dcp1-wrt-02-ks.cfg fetch=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23/LiveOS/squashfs.img method=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23
+
+label 6
+menu label ^6) Install JEDI (CentOS-Atomic-23) - DCP1-WRT-03
+  kernel  centos_cloud_atomic_23/vmlinuz
+  append initrd=centos_cloud_atomic_23/initrd.img devfs=nomount inst.ks=ftp://{{ pxe_ip }}/pub/_kickstart/dcp1-wrt-03-ks.cfg fetch=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23/LiveOS/squashfs.img method=ftp://{{ pxe_ip }}/pub/centos_cloud_atomic_23
+
+
+# LOCALBOOT 0

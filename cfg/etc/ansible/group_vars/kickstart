@@ -9,7 +9,8 @@ dns_ip: "{{ pxe_ip }}"
 gateway_ip: "{{ pxe_ip }}"
 # tftp
 tftp_boot_loc: /var/lib/tftpboot
+archives_loc: /vagrant/archives
 atomic_c_iso: CentOS-Atomic-Host-7-Installer.iso
-atomic_c_iso_loc: "/home/vagrant/sync/archives/{{ _atomic_c_iso }}"
+atomic_c_iso_loc: "{{ archives_loc }}/{{ atomic_c_iso }}"
 atomic_c_iso_url: http://cloud.centos.org/centos/7/atomic/images/CentOS-Atomic-Host-7-Installer.iso
 

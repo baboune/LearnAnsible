@@ -11,4 +11,6 @@ $6$rounds=656000$oopezXro4Wnys/EP$VoQbhD.dAb5HqedhTEBmqaGSOb9fNAtQUhIJHBeL8Jqv38
 # How to use
 
 ## Step 1: Create the user on the nodes for ansible install
+$ vagrant ssh controller
+$ sudo su  
 $ ansible-playbook /vagrant/playbook/playbook.yml --ask-pass -u root

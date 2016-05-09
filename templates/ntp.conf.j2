@@ -1,0 +1,23 @@
+driftfile /var/lib/ntp/drift
+
+# Permit time synchronization with our time source, but do not
+# permit the source to query or modify the service on this system.
+restrict default nomodify notrap nopeer noquery
+
+# Permit all access over the loopback interface.  This could
+# be tightened as well, but to do so would effect some of
+# the administrative functions.
+restrict 127.0.0.1 
+restrict ::1
+
+# Allow hosts on SUBNET.0/24 to synchronize
+restrict {{ subnet }}.0 mask 255.255.255.0 nomodify notrap
+
+# Swedish servers
+server 0.se.pool.ntp.org
+server 1.se.pool.ntp.org
+server 2.se.pool.ntp.org
+server 3.se.pool.ntp.org
+
+disable monitor
+logfile /var/log/ntp.log

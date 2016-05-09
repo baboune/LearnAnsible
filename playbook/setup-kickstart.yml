@@ -6,6 +6,10 @@
   handlers:
     - name: restart dnsmasq
       service: name=dnsmasq state=restarted
+    - name: restart ntp
+      service: name=ntpd state=restarted
+    - name: restart httpd
+      service: name=httpd state=restarted
 
   tasks:
   - name: install the required packages
@@ -35,6 +39,9 @@
     - dnsmasq
     - httpd
 
+  - name: prepare ISO archives
+    file: path={{ archives_loc }} state=directory
+
   - name: configure dnsmasq
     template: 
       src: "{{ templates_dir }}/dnsmasq.conf.j2" 
@@ -44,16 +51,23 @@
       mode: 0644
     notify: restart dnsmasq
 
-  - name: configure other services
-    copy:
-      src: "{{ item.src }}"
-      dest: "{{ item.dest }}"
+  - name: configure ntp
+    template: 
+      src: "{{ templates_dir }}/ntp.conf.j2" 
+      dest: "/etc/ntp.conf"
       owner: root
       group: root
       mode: 0644
-    with_items:
-      - src: "{{ src_cfg_dir }}/etc/httpd/conf.d/local-kickstart.conf" 
-        dest: "/etc/httpd/conf.d/local-kickstart.conf"
+    notify: restart ntp
+
+  - name: configure httpd
+    copy:
+      src: "{{ src_cfg_dir }}/etc/httpd/conf.d/local-kickstart.conf" 
+      dest: "/etc/httpd/conf.d/local-kickstart.conf"
+      owner: root
+      group: root
+      mode: 0644
+    notify: restart httpd
 
   - name: enable and start services
     service: name={{ item }} enabled=yes state=started
@@ -63,3 +77,26 @@
     - tftp
     - vsftpd
     - ntpd
+
+  - name: add bootloader files
+    #copy:
+    #  src: "/usr/share/syslinux/"
+    #  dest: "{{ tftp_boot_loc }}"
+    command: >
+      cp -r /usr/share/syslinux/ {{ tftp_boot_loc }}
+
+  - name: Setup ISO
+    get_url:
+      url: "{{ atomic_c_iso_url }}" 
+      dest: "{{ atomic_c_iso_loc }}"
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: mount ISOs
+    mount: 
+      name: /var/ftp/pub/centos_cloud_atomic_23 
+      src: "{{ atomic_c_iso_loc }}"
+      fstype: iso9660 
+      opts: ro 
+      state: present

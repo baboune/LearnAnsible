@@ -7,7 +7,7 @@ function f_check_is_root {
 }
 
 # Debug
-set -eux
+#set -eux
 
 f_check_is_root
 
@@ -16,11 +16,11 @@ ANSIBLE_DIR=/etc/ansible
 echo "This emulates the expected behavior of the Ansible controller"
 echo "Overriding ansible configuration files and hosts to synced /vagrant"
 
-# Removes those and replace with links
+# Remove files and replace with links
 _file_list=( hosts ansible.cfg )
 for l in "${_file_list[@]}"
 do  
-  if [ ! -e ${ANSIBLE_DIR}/${l} ]; then         
+  if [ -f ${ANSIBLE_DIR}/${l} ]; then         
     echo "Removing file: ${ANSIBLE_DIR}/${l}"
     rm -f ${ANSIBLE_DIR}/${l}
   fi
@@ -31,7 +31,7 @@ _link_list=( hosts ansible.cfg group_vars host_vars )
 
 for l in "${_link_list[@]}"
 do  
-  if [ ! -e ${ANSIBLE_DIR}/${l} ]; then         
+  if [ ! -L ${ANSIBLE_DIR}/${l} ]; then         
     echo "Adding link: ${ANSIBLE_DIR}/${l}"
     ln -s /vagrant/cfg/etc/ansible/${l} ${ANSIBLE_DIR}/${l}
   fi
