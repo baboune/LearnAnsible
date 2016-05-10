@@ -42,10 +42,9 @@
     - /etc/httpd
     - "{{ tftp_boot_loc }}"
     - "{{ tftp_boot_loc }}/centos_cloud_atomic_23/"
-
-  - name: prepare ISO archives
-    file: path={{ archives_loc }} state=directory
-
+    - "{{ archives_loc }}"
+    - /opt/ISOs
+  
   - name: configure dnsmasq
     template: 
       src: "{{ templates_dir }}/dnsmasq.conf.j2" 
@@ -89,44 +88,46 @@
     - vsftpd
     - ntpd
 
-  - name: add bootloader files
-    #synchronize:
-    #  src: /usr/share/syslinux
-    #  dest: "{{ tftp_boot_loc }}"
-    #delegate_to: "{{ inventory_hostname }}"
-    copy: >
-      remote_src=true
-      src=/usr/share/syslinux
-      dest={{ tftp_boot_loc }}
-    with_fileglob:
-      - /usr/share/syslinux/*
-    #command: >
-    #  cp -r /usr/share/syslinux/ {{ tftp_boot_loc }}
+  - name: bootloader files
+    shell: ls /usr/share/syslinux
+    register: bootloader_files
 
-  - name: Setup ISO
-    get_url:
-      url: "{{ atomic_c_iso_url }}" 
-      dest: "{{ atomic_c_iso_loc }}"
-      owner: root
-      group: root
-      mode: 0644
+  #- name: What's in bootloader_files?
+  #  debug: var=bootloader_files
+
+  - name: add bootloader files
+    shell: cp -r /usr/share/syslinux/* {{ tftp_boot_loc }}/.    
+
+  - name: is ISO in /vagrant/archives?
+    stat: path={{ atomic_c_iso_loc }}
+    register: atomic_iso_stat
+
+  - name: What's in atomic_iso_stat?
+    debug: var=atomic_iso_stat
+
+  #- name: fail on missing ISO
+  #  fail: msg="Add the atomic ISO to archives: wget {{ atomic_c_iso_url }}."
+  #  when: atomic_iso_stat.exists
+  - name: copy ISO to archives
+    copy: src={{ atomic_c_iso_loc }} dest=/opt/ISOs
+    when: atomic_iso_stat.stat.exists
+
+  - name: download ISO
+    get_url: >
+      url={{ atomic_c_iso_url }}
+      dest=/opt/ISOs
+      timeout=600
+    when: not atomic_iso_stat.stat.exists
 
   - name: mount ISOs
     mount: 
       name: /var/ftp/pub/centos_cloud_atomic_23 
-      src: "{{ atomic_c_iso_loc }}"
-      fstype: auto 
-      opts: ro 
+      src: "/opt/ISOs/{{ atomic_c_iso }}"
+      fstype: iso9660 
+      opts: loop,ro
       state: mounted
 
   - name: prepate tftp boot
-    copy: >
-      remote_src=true
-      src={{ item }}
-      dest={{ tftp_boot_loc }}/centos_cloud_atomic_23
-    with_fileglob:
-      - /var/ftp/pub/centos_cloud_atomic_23/images/pxeboot/*
-
-    # command: >
-    #   cp /var/ftp/pub/centos_cloud_atomic_23/images/pxeboot/ {{ tftp_boot_loc }}/centos_cloud_atomic_23/
+    shell: cp -r /var/ftp/pub/centos_cloud_atomic_23/images/pxeboot/* {{ tftp_boot_loc }}/centos_cloud_atomic_23/.
+    
 
