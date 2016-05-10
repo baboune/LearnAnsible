@@ -34,10 +34,14 @@
     selinux: policy=targeted state=permissive
 
   - name: prepare configuration directories
-    file: path=/etc/{{ item }} state=directory
+    file: 
+      path: "{{ item }}"
+      state: directory
     with_items:
-    - dnsmasq
-    - httpd
+    - /etc/dnsmasq
+    - /etc/httpd
+    - "{{ tftp_boot_loc }}"
+    - "{{ tftp_boot_loc }}/centos_cloud_atomic_23/"
 
   - name: prepare ISO archives
     file: path={{ archives_loc }} state=directory
@@ -69,6 +73,13 @@
       mode: 0644
     notify: restart httpd
 
+  - name: configure httpd port 8080
+    lineinfile:
+      dest: "/etc/httpd/conf/httpd.conf"
+      regexp: "Listen 8080"
+      line: "Listen 8080"
+    notify: restart httpd
+
   - name: enable and start services
     service: name={{ item }} enabled=yes state=started
     with_items:
@@ -79,11 +90,18 @@
     - ntpd
 
   - name: add bootloader files
-    #copy:
-    #  src: "/usr/share/syslinux/"
+    #synchronize:
+    #  src: /usr/share/syslinux
     #  dest: "{{ tftp_boot_loc }}"
-    command: >
-      cp -r /usr/share/syslinux/ {{ tftp_boot_loc }}
+    #delegate_to: "{{ inventory_hostname }}"
+    copy: >
+      remote_src=true
+      src=/usr/share/syslinux
+      dest={{ tftp_boot_loc }}
+    with_fileglob:
+      - /usr/share/syslinux/*
+    #command: >
+    #  cp -r /usr/share/syslinux/ {{ tftp_boot_loc }}
 
   - name: Setup ISO
     get_url:
@@ -97,6 +115,18 @@
     mount: 
       name: /var/ftp/pub/centos_cloud_atomic_23 
       src: "{{ atomic_c_iso_loc }}"
-      fstype: iso9660 
+      fstype: auto 
       opts: ro 
-      state: present
+      state: mounted
+
+  - name: prepate tftp boot
+    copy: >
+      remote_src=true
+      src={{ item }}
+      dest={{ tftp_boot_loc }}/centos_cloud_atomic_23
+    with_fileglob:
+      - /var/ftp/pub/centos_cloud_atomic_23/images/pxeboot/*
+
+    # command: >
+    #   cp /var/ftp/pub/centos_cloud_atomic_23/images/pxeboot/ {{ tftp_boot_loc }}/centos_cloud_atomic_23/
+
