@@ -1,0 +1,18 @@
+---
+# handlers file for pxe-boot
+
+- name: Restart dnsmasq
+  service:
+    name: 'dnsmasq'
+    state: 'restarted'
+
+- name: Restart ntp
+  service:
+    name: 'ntp'
+    state: 'restarted'
+
+- name: Restart httpd
+  service:
+    name: 'httpd'
+    state: 'restarted'
+

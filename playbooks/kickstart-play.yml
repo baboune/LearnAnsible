@@ -1,0 +1,11 @@
+# kickstart
+---
+- hosts: [kickstart]
+  become: yes
+
+  pre_tasks:
+
+  roles:
+    - pxe-boot
+
+  tasks:

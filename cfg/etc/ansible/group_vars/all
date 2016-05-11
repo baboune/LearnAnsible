@@ -1,4 +1,4 @@
 ---
 # Global defaults
 src_cfg_dir: /vagrant/cfg
-templates_dir: /vagrant/templates
+#templates_dir: /vagrant/templates

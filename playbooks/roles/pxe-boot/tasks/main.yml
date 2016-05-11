@@ -1,0 +1,119 @@
+---
+# tasks file for pxe-boot
+- name: install the required packages
+  # More generic but since we know it is centos
+  #   package: name={{ item }} state=latest
+  yum: name={{ item }} state=present
+  with_items:
+  - wget 
+  - httpd 
+  - tftp 
+  - tftp-server 
+  - vsftpd 
+  - syslinux 
+  - ntp 
+  - net-tools 
+  - bind-utils 
+  - tcpdump 
+  - pyOpenSSL 
+  - git
+
+- name: disable SELinux
+  selinux: policy=targeted state=permissive
+
+- name: prepare configuration directories
+  file: 
+    path: "{{ item }}"
+    state: directory
+  with_items:
+  - /etc/dnsmasq
+  - /etc/httpd
+  - "{{ tftp_boot_loc }}"
+  - "{{ tftp_boot_loc }}/centos_cloud_atomic_23/"
+  - "{{ archives_loc }}"
+  - /opt/ISOs
+
+- name: configure dnsmasq
+  template: 
+    src: 'etc/dnsmasq.conf.j2'
+    dest: "/etc/dnsmasq/dnsmasq.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart dnsmasq
+
+- name: configure ntp
+  template: 
+    src: 'etc/ntp.conf.j2'
+    dest: '/etc/ntp.conf'
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart ntp
+
+- name: configure httpd
+  copy:
+    src: 'etc/httpd/conf.d/local-kickstart.conf'
+    dest: '/etc/httpd/conf.d/local-kickstart.conf'
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart httpd
+
+- name: configure httpd port 8080
+  lineinfile:
+    dest: '/etc/httpd/conf/httpd.conf'
+    regexp: 'Listen 8080'
+    line: 'Listen 8080'
+  notify: restart httpd
+
+- name: enable and start services
+  service: name={{ item }} enabled=yes state=started
+  with_items:
+  - dnsmasq
+  - httpd
+  - tftp
+  - vsftpd
+  - ntpd
+
+- name: bootloader files
+  shell: ls /usr/share/syslinux
+  register: bootloader_files
+
+#- name: What's in bootloader_files?
+#  debug: var=bootloader_files
+
+- name: add bootloader files
+  shell: cp -r /usr/share/syslinux/* {{ tftp_boot_loc }}/.
+
+- name: is ISO in /vagrant/archives?
+  stat: path={{ atomic_c_iso_loc }}
+  register: atomic_iso_stat
+
+- name: What's in atomic_iso_stat?
+  debug: var=atomic_iso_stat
+
+#- name: fail on missing ISO
+#  fail: msg="Add the atomic ISO to archives: wget {{ atomic_c_iso_url }}."
+#  when: atomic_iso_stat.exists
+- name: copy ISO to archives
+  copy: src={{ atomic_c_iso_loc }} dest=/opt/ISOs
+  when: atomic_iso_stat.stat.exists
+
+- name: download ISO
+  get_url: >
+    url={{ atomic_c_iso_url }}
+    dest=/opt/ISOs
+    timeout=600
+  when: not atomic_iso_stat.stat.exists
+
+- name: mount ISOs
+  mount: 
+    name: /var/ftp/pub/centos_cloud_atomic_23 
+    src: "/opt/ISOs/{{ atomic_c_iso }}"
+    fstype: iso9660 
+    opts: loop,ro
+    state: mounted
+
+- name: prepate tftp boot
+  shell: cp -r /var/ftp/pub/centos_cloud_atomic_23/images/pxeboot/* {{ tftp_boot_loc }}/centos_cloud_atomic_23/.
