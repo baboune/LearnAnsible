@@ -1,0 +1,6 @@
+#{{ mac1 }},{{ subnet }}.201,kds-atomic-01,12h
+#{{ mac2 }},{{ subnet }}.202,kds-atomic-02,12h
+
+{% for host in groups['slaves'] %}
+  {{ hostvars[host]['ansible_enp0s8']['macaddress'] }},{{ subnet }}.200,kds-atomic-01,12h
+{% endfor %}

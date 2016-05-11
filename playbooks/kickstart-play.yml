@@ -7,5 +7,6 @@
 
   roles:
     - pxe-boot
+    - mirror-repo
 
   tasks:

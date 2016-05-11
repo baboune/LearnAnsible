@@ -36,10 +36,26 @@
 - name: configure dnsmasq
   template: 
     src: 'etc/dnsmasq.conf.j2'
-    dest: "/etc/dnsmasq/dnsmasq.conf"
+    dest: '/etc/dnsmasq.conf'
     owner: root
     group: root
     mode: 0644
+  notify: restart dnsmasq
+
+- name: hostvars
+  debug: var=hostvars['192.168.50.21']
+
+- name: configure dnsmasq hosts reserved ips
+  template: 
+    src: 'etc/dnsmasq/dhcp-hosts.j2'
+    dest: '/etc/dnsmasq/dhcp-hosts'
+    mode: 0644
+  notify: restart dnsmasq
+
+- name: add upstream nameservers
+  template: 
+    src: 'etc/dnsmasq/upstream-ns.conf.j2'
+    dest: '/etc/dnsmasq/upstream-ns.conf'
   notify: restart dnsmasq
 
 - name: configure ntp
@@ -90,13 +106,13 @@
   stat: path={{ atomic_c_iso_loc }}
   register: atomic_iso_stat
 
-- name: What's in atomic_iso_stat?
-  debug: var=atomic_iso_stat
-
+#- name: What's in atomic_iso_stat?
+#  debug: var=atomic_iso_stat
+#
 #- name: fail on missing ISO
 #  fail: msg="Add the atomic ISO to archives: wget {{ atomic_c_iso_url }}."
 #  when: atomic_iso_stat.exists
-- name: copy ISO to archives
+- name: copy ISO to /opt/ISOs
   copy: src={{ atomic_c_iso_loc }} dest=/opt/ISOs
   when: atomic_iso_stat.stat.exists
 
@@ -117,3 +133,20 @@
 
 - name: prepate tftp boot
   shell: cp -r /var/ftp/pub/centos_cloud_atomic_23/images/pxeboot/* {{ tftp_boot_loc }}/centos_cloud_atomic_23/.
+
+- name: make dnsmasq as local forwarder of all requests
+  copy: > 
+    src='etc/resolv.conf'
+    dest='/etc/resolv.conf'
+
+# NAT
+- name: allow ip v4 forwarding
+  sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
+
+- name: add NAT iptable rules - MASQUERADE
+  iptables: table=nat chain=POSTROUTING out_interface={{ nat_out_if }} jump=MASQUERADE
+#- name: add NAT iptable rules - forwarding
+#  iptables: chain=FORWARD in_interface={{ nat_in_if }} out_interface={{ nat_out_if }} ctstate=RELATED,ESTABLISHED jump=ACCEPT
+# seehttps://www.howtoforge.com/nat_iptables
+- name: iptable rules - forwarding
+  iptables: chain=FORWARD in_interface={{ nat_in_if }} out_interface={{ nat_out_if }} jump=ACCEPT

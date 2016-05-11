@@ -13,4 +13,6 @@ archives_loc: /vagrant/archives
 atomic_c_iso: CentOS-Atomic-Host-7-Installer.iso
 atomic_c_iso_loc: "{{ archives_loc }}/{{ atomic_c_iso }}"
 atomic_c_iso_url: http://cloud.centos.org/centos/7/atomic/images/CentOS-Atomic-Host-7-Installer.iso
+nat_out_if: eth0
+nat_in_if: eth1
 

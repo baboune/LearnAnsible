@@ -1,5 +1,5 @@
 # Specify which interface to serve DHCP on 
-interface={{ dhcp_interface }},lo
+interface={{ dhcp_interface }},127.0.0.1,lo
 
 # DHCP range-leases, including interface, netmask and lease-time
 dhcp-range={{ dhcp_interface }},{{ subnet_start }},{{ subnet_end }},255.255.255.0,1h
@@ -26,6 +26,12 @@ tftp-root={{ tftp_boot_loc }}
 
 # Use for fixed allocation
 dhcp-hostsfile=/etc/dnsmasq/dhcp-hosts
+
+# Add /etc/hosts
+addn-hosts=/etc/hosts
+
+# DNS upstream
+resolv-file=/etc/dnsmasq/upstream-ns.conf
 
 # Logging
 # For debugging purposes, log each DNS query as it passes through

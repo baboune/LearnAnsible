@@ -1,0 +1,33 @@
+---
+# tasks file for mirror-repo
+
+
+#echo "Preparing centos repository directory structure."
+- name: prepare centos directories
+  file: >
+    path="{{ item }}"
+    state=directory
+  with_items:
+  - /var/www/public_html/
+  - /var/ftp/pub/repositories/centos/7/
+
+- name: link repositories between ftp and http servers
+  file: >
+    src=/var/ftp/pub/repositories
+    dest=/var/www/public_html/repositories
+    state=link
+
+- name: rsync centos repositories
+  shell: /usr/bin/rsync -avSHP --delete \
+    --exclude "centosplus"  \
+    --exclude "cloud"       \
+    --exclude "cr"          \
+    --exclude "extras"      \
+    --exclude "fasttrack"   \
+    --exclude "isos"        \
+    --exclude "os"          \
+    --exclude "sclo"        \
+    --exclude "storage"     \
+    --exclude "updates"     \
+    --exclude "virt"        \
+    rsync://ftp.lysator.liu.se/pub/CentOS/7/ /var/ftp/pub/repositories/centos/7/
