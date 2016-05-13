@@ -14,3 +14,10 @@ $6$rounds=656000$oopezXro4Wnys/EP$VoQbhD.dAb5HqedhTEBmqaGSOb9fNAtQUhIJHBeL8Jqv38
 $ vagrant ssh controller
 $ sudo su  
 $ ansible-playbook /vagrant/playbook/playbook.yml --ask-pass -u root
+
+
+# Gather facts about infrastructure
+
+$ ansible all -m setup 
+
+Facts are stored via fast-caching in /etc/ansible/fact-cache and can be re-used during playbook run.

@@ -4,4 +4,4 @@ src_cfg_dir: /vagrant/cfg
 #templates_dir: /vagrant/templates
 mac1: 00:11:22:33:44:01
 mac2: 00:11:22:33:44:02
-dns_nameservers: [147.214.9.30, 147.214.252.39]
+dns_nameservers: ["147.214.9.30", "147.214.252.39"]
