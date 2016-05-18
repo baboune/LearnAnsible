@@ -40,14 +40,14 @@
     owner: root
     group: root
     mode: 0644
-  notify: restart dnsmasq
+  notify: [ 'restart dnsmasq' ]
 
 - name: configure dnsmasq hosts reserved ips
   template: 
     src: 'etc/dnsmasq/dhcp-hosts.j2'
     dest: '/etc/dnsmasq/dhcp-hosts'
     mode: 0644
-  notify: restart dnsmasq
+  notify: [ 'restart dnsmasq' ]
 
 - name: dns_nameservers
   debug: var=dns_nameservers
@@ -56,7 +56,7 @@
   template: 
     src: 'etc/dnsmasq/upstream-ns.conf.j2'
     dest: '/etc/dnsmasq/upstream-ns.conf'
-  notify: restart dnsmasq
+  notify: [ 'restart dnsmasq' ]
 
 - name: configure ntp
   template: 
@@ -65,7 +65,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: restart ntp
+  notify: [ 'restart ntp' ]
 
 - name: configure httpd
   copy:
@@ -74,14 +74,14 @@
     owner: root
     group: root
     mode: 0644
-  notify: restart httpd
+  notify: [ 'restart httpd' ]
 
 - name: configure httpd port 8080
   lineinfile:
     dest: '/etc/httpd/conf/httpd.conf'
     regexp: 'Listen 8080'
     line: 'Listen 8080'
-  notify: restart httpd
+  notify: [ 'restart httpd' ]
 
 - name: enable and start services
   service: name={{ item }} enabled=yes state=started
